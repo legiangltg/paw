@@ -1,11 +1,16 @@
-self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
+self.addEventListener('install', event => {
+  console.log('Service Worker installed');
+  event.waitUntil(
+    caches.open('zalo-pwa-cache').then(cache => {
+      return cache.addAll(['/', '/index.html']);
+    })
+  );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request).catch(() => {
-      return new Response('You are offline. Please connect to the internet.');
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
     })
   );
 });
